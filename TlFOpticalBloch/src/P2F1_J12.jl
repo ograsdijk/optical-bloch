@@ -1,16 +1,20 @@
-function Lindblad_rhs!(du, ρ, p, t)
+function Lindblad_rhs_P2F1_J12!(du, ρ, p, t)
 	@inbounds begin
 		Ω = p[1]
 		Ωᶜ = conj(Ω)
 		νp = p[2]
-		Ω1 = p[3]
+        ϕ_laser_a = p[3]
+        ϕ_laser_b = p[4]
+		Ω1 = p[5]
 		Ω1ᶜ = conj(Ω1)
-		νp1 = p[4]
-		Δ = p[5]
-		Plx = square_wave(t, νp, 3.141592653589793)
-		Plz = square_wave(t, νp, 0.0)    
-		Pm1y = square_wave(t, νp1, 1.5707963267948966)
-		Pm1z = square_wave(t, νp1, 4.71238898038469)
+		νp1 = p[6]
+        ϕ_μ1_a = p[7]
+        ϕ_μ1_b = p[8]
+		Δ = p[9]
+		Plx = square_wave(t, νp, ϕ_laser_a)
+		Plz = square_wave(t, νp, ϕ_laser_b)    
+		Pm1y = square_wave(t, νp1, ϕ_μ1_a)
+		Pm1z = square_wave(t, νp1, ϕ_μ1_b)
 		du[1,1] = 3367347.38920463*ρ[37,37] + 3367525.85757619*ρ[38,38] + 3367704.32982946*ρ[39,39]
 		du[1,2] = -83545.9813842773*1im*ρ[1,2]
 		du[1,3] = -83566.3651275635*1im*ρ[1,3]
