@@ -1,4 +1,3 @@
-
 function Lindblad_rhs!(du, ρ, p, t)
 	@inbounds begin
 		Ω = p[1]
