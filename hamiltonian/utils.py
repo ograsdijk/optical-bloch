@@ -1,5 +1,5 @@
 import numpy as np
-from hamiltonian.states import State
+from hamiltonian.states import State, CoupledBasisState
 
 def matrix_to_states(V, QN, E = None):
     """Turn a matrix of eigenvectors into a list of state objects
@@ -202,3 +202,14 @@ def reorder_evecs(V_in,E_in,V_ref):
     V_out = V_in[:,index]   
     
     return E_out, V_out
+
+def generate_coupled_ground_states(J_list, electronic_state, parity, Ω, 
+                                    I_Tl = 1/2, I_F = 1/2):
+    return [CoupledBasisState(F,mF,F1,J,I_F,I_Tl, 
+                                electronic_state = electronic_state, P = parity(J), 
+                                Omega = Ω)
+            for J  in J_list
+            for F1 in ni_range(np.abs(J-I_F),J+I_F+1)
+            for F in ni_range(np.abs(F1-I_Tl),F1+I_Tl+1)
+            for mF in ni_range(-F, F+1)
+            ]

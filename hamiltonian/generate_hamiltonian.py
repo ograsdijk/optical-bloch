@@ -1,5 +1,6 @@
 import sympy
 import numpy as np
+from hamiltonian.utils import reorder_evecs
 from hamiltonian.constants_X import B_rot as B_rot_X
 from hamiltonian.constants_B import B_rot as B_rot_B
 from hamiltonian.constants_X import B_ϵ, α, D_TlF, μ_J, μ_Tl, μ_F
@@ -99,3 +100,16 @@ def generate_B_hamiltonian_function(components):
             H["H_cp1_Tl"] + H["H_LD"] + H["HZz"]*0.01
 
     return ham
+
+def generate_diagonalized_hamiltonian(hamiltonian, keep_order = True, 
+                                        return_V_ref = False):
+    D, V = np.linalg.eigh(hamiltonian)
+    if keep_order:
+        V_ref = np.eye(V.shape[0])
+        D, V = reorder_evecs(V,D,V_ref)
+
+    hamiltonian_diagonalized = V.conj().T @ hamiltonian @ V
+    if not return_V_ref or not keep_order:
+        return hamiltonian_diagonalized, V
+    else:
+        return hamiltonian_diagonalized, V, V_ref

@@ -137,7 +137,7 @@ def collapse_matrices(QN, ground_states, excited_states, gamma = 1, tol = 1e-4):
         j = QN.index(excited_state)
         BRs = calculate_BR(excited_state, ground_states)
         if np.sum(BRs) > 1:
-            print(f"Warning: Branching ratio sum > 1: {np.sum(BRs):.5f}")
+            print(f"Warning: Branching ratio sum > 1, difference = {np.sum(BRs)-1:.2e}")
         for ground_state, BR in zip(ground_states, BRs):
             i = QN.index(ground_state)
 
