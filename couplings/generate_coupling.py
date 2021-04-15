@@ -76,3 +76,20 @@ def microwave_coupling_matrix(J1, J2, QN, pol_vec = np.array([0,0,1])):
     
     # return the coupling matrix
     return H_mu
+
+def generate_laser_D(H,QN, ground_main, excited_main, excited_states, Δ):
+    # find transition frequency
+    ig = QN.index(ground_main)
+    ie = QN.index(excited_main)
+    ω0 = (H[ie,ie] - H[ig,ig]).real
+
+    # calculate the shift Δ = ω - ω₀
+    ω = ω0 + Δ
+
+    # shift matrix
+    D = np.zeros(H.shape, H.dtype)
+    for excited_state in excited_states:
+        idx = QN.index(excited_state)
+        D[idx,idx] -= ω
+
+    return D
