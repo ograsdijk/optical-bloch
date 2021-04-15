@@ -10,8 +10,8 @@ def system_of_equations_to_lines(system):
             if system[idx,idy] != 0:
                 cline = str(system[idx,idy])
                 cline = f"du[{idx+1},{idy+1}] = " + cline
-                cline = cline.replace("Px(t)", "Px")
-                cline = cline.replace("Pz(t)", "Pz")
+                cline = cline.replace("(t)", "")
+                cline = cline.replace("(t)", "")
                 cline = cline.replace("I", "1im")
                 cline += '\n'
                 for i in range(system.shape[0]):
