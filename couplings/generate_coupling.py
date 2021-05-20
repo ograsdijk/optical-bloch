@@ -38,46 +38,83 @@ def optical_coupling_matrix(QN, ground_states, excited_states,
 
     return H
 
-def microwave_coupling_matrix(J1, J2, QN, pol_vec = np.array([0,0,1])):
+def microwave_coupling_matrix(QN, ground_states, excited_states, pol_vec = np.array([0,0,1]), reduced = False):
     """generate microwave coupling matrix between J1 and J2 rotational states,
 
 
     Args:
+        QN (list): list of State objects
         J1 (int): one of the coupled rotational states
         J2 (int): one of the coupled rotational states
-        QN (list): list of State objects
         pol_vec (np.ndarray, optional): polarization vector. Defaults to np.array([0,0,1]).
 
     Returns:
         np.ndarray: microwave coupling matrix
     """
-    # number of states in system
-    N_states = len(QN) 
+    # # number of states in system
+    # N_states = len(QN) 
+    # # initialize Hamiltonian
+    # H_mu = np.zeros((N_states,N_states), dtype = complex)
     
-    # initialize Hamiltonian
-    H_mu = np.zeros((N_states,N_states), dtype = complex)
     
-    
-    # loop over states and calculate microwave matrix elements between them
-    for i in range(0, N_states):
-        state1 = QN[i].remove_small_components(tol = 0.001)
+    # # loop over states and calculate microwave matrix elements between them
+    # for i in range(0, N_states):
+    #     state1 = QN[i].remove_small_components(tol = 0.001)
         
-        for j in range(i, N_states):
-            state2 = QN[j].remove_small_components(tol = 0.001)
+    #     for j in range(i, N_states):
+    #         state2 = QN[j].remove_small_components(tol = 0.001)
             
-            # check that the states have the correct values of J
-            if (state1.find_largest_component().J == J1 and state2.find_largest_component().J == J2) or (state1.find_largest_component().J == J2 and state2.find_largest_component().J == J1):
-                # calculate matrix element between the two states
-                H_mu[i,j] = (ED_ME_mixed_state(state1, state2, reduced=False, pol_vec=pol_vec))
+    #         # check that the states have the correct values of J
+    #         if (state1.find_largest_component().J == J1 and state2.find_largest_component().J == J2) or (state1.find_largest_component().J == J2 and state2.find_largest_component().J == J1):
+    #             # calculate matrix element between the two states
+    #             H_mu[i,j] = (ED_ME_mixed_state(state1, state2, reduced=reduced, pol_vec=pol_vec))
                 
-    # make H_mu hermitian
-    H_mu = (H_mu + np.conj(H_mu.T)) - np.diag(np.diag(H_mu))
+    # # make H_mu hermitian
+    # H_mu = (H_mu + np.conj(H_mu.T)) - np.diag(np.diag(H_mu))
     
     
-    # return the coupling matrix
-    return H_mu
+    # # return the coupling matrix
+    # return H_mu
+    # initialize the coupling matrix
+    H = np.zeros((len(QN),len(QN)), dtype = complex)
 
-def generate_laser_D(H,QN, ground_main, excited_main, excited_states, Δ):
+    # start looping over ground and excited states
+    for ground_state in ground_states:
+        i = QN.index(ground_state)
+        for excited_state in excited_states:
+            j = QN.index(excited_state)
+
+            # calculate matrix element and add it to the Hamiltonian
+            H[i,j] = ED_ME_mixed_state(
+                                        ground_state, 
+                                        excited_state, 
+                                        pol_vec = pol_vec, 
+                                        reduced = reduced
+                                        )
+
+    # make H hermitian
+    H = H + H.conj().T
+    
+    return H
+
+def generate_laser_D(H, QN, ground_main, excited_main, excited_states, Δ):
+    # find transition frequency
+    ig = QN.index(ground_main)
+    ie = QN.index(excited_main)
+    ω0 = (H[ie,ie] - H[ig,ig]).real
+
+    # calculate the shift Δ = ω - ω₀
+    ω = ω0 + Δ
+
+    # shift matrix
+    D = np.zeros(H.shape, H.dtype)
+    for excited_state in excited_states:
+        idx = QN.index(excited_state)
+        D[idx,idx] -= ω
+
+    return D
+
+def generate_microwave_D(H, QN, ground_main, excited_main, excited_states, Δ):
     # find transition frequency
     ig = QN.index(ground_main)
     ie = QN.index(excited_main)
