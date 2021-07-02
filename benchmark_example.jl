@@ -141,3 +141,29 @@ display(@benchmark solve(prob, Tsit5(), dt = 1e-9, adaptive=true, abstol = 5e-7,
 #   --------------
 #   samples:          8
 #   evals/sample:     1
+
+# single solve slow
+# BenchmarkTools.Trial:
+#   memory estimate:  39.23 MiB
+#   allocs estimate:  10929
+#   --------------
+#   minimum time:     8.964 ms (0.00% GC)
+#   median time:      10.482 ms (0.00% GC)
+#   mean time:        11.642 ms (14.00% GC)
+#   maximum time:     32.532 ms (49.23% GC)
+#   --------------
+#   samples:          2574
+#   evals/sample:     1
+
+# single solve fast
+# BenchmarkTools.Trial:
+#   memory estimate:  299.78 KiB
+#   allocs estimate:  105
+#   --------------
+#   minimum time:     51.900 μs (0.00% GC)
+#   median time:      134.700 μs (0.00% GC)
+#   mean time:        142.521 μs (17.37% GC)
+#   maximum time:     8.636 ms (98.65% GC)
+#   --------------
+#   samples:          10000
+#   evals/sample:     1
