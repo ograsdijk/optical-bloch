@@ -33,8 +33,7 @@ function prob_func(prob,i,repeat)
 end
 
 function output_func(sol,i)
-    return trapz(sol.t, [real(sum(diag(sol.u[j])[13:end])) 
-                                          for j in 1:size(sol.u)[1]]), false
+    return trapz(sol.t, [real(sum(diag(sol.u[j])[13:end])) for j in 1:size(sol.u)[1]]), false
 end
 
 ens_prob = EnsembleProblem(prob, prob_func = prob_func, output_func = output_func)
