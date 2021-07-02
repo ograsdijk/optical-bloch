@@ -18,3 +18,6 @@ def subs_rabi_rate(hamiltonian, originals, replacement):
         Ωᶜ = Symbol(f'Ω{original}ᶜ', complex = True)
         ham = ham.subs((Ω, Ωr), (Ωᶜ, Ωrᶜ))
     return ham
+
+def multi_C_ρ_Cconj(C, Cᶜ, ρ):
+    return C@ρ@Cᶜ
