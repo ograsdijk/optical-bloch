@@ -1,9 +1,11 @@
 import numpy as np
+import multiprocessing
 from couplings.utils import ED_ME_mixed_state
+from couplings.utils import multi_coupling_matrix
 
 def optical_coupling_matrix(QN, ground_states, excited_states, 
-                            pol_vec = np.array([0,0,1]), reduced = False
-                            ):
+                            pol_vec = np.array([0,0,1]), reduced = False,
+                            nprocs = 1):
     """generate optical coupling matrix for given ground and excited states
 
     Args:
@@ -12,33 +14,41 @@ def optical_coupling_matrix(QN, ground_states, excited_states,
         excited_states (list): list of excited states
         pol_vec (np.ndarray, optional): polarization vector. Defaults to np.array([0,0,1]).
         reduced (bool, optional): [description]. Defaults to False.
+        nrpocs (int): # processes to use for multiprocessing
 
     Returns:
         np.ndarray: optical coupling matrix
     """
-    # initialize the coupling matrix
-    H = np.zeros((len(QN),len(QN)), dtype = complex)
+    if nprocs > 1:
+        with multiprocessing.Pool(nprocs) as pool:
+            result = pool.starmap(multi_coupling_matrix,
+                [(QN, gs, excited_states, pol_vec, reduced) for gs in ground_states])
+        H = np.sum(result, axis = 0)
+    else:
+        # initialize the coupling matrix
+        H = np.zeros((len(QN),len(QN)), dtype = complex)
 
-    # start looping over ground and excited states
-    for ground_state in ground_states:
-        i = QN.index(ground_state)
-        for excited_state in excited_states:
-            j = QN.index(excited_state)
+        # start looping over ground and excited states
+        for ground_state in ground_states:
+            i = QN.index(ground_state)
+            for excited_state in excited_states:
+                j = QN.index(excited_state)
 
-            # calculate matrix element and add it to the Hamiltonian
-            H[i,j] = ED_ME_mixed_state(
-                                        ground_state, 
-                                        excited_state, 
-                                        pol_vec = pol_vec, 
-                                        reduced = reduced
-                                        )
+                # calculate matrix element and add it to the Hamiltonian
+                H[i,j] = ED_ME_mixed_state(
+                                            ground_state, 
+                                            excited_state, 
+                                            pol_vec = pol_vec, 
+                                            reduced = reduced
+                                            )
 
     # make H hermitian
     H = H + H.conj().T
 
     return H
 
-def microwave_coupling_matrix(QN, ground_states, excited_states, pol_vec = np.array([0,0,1]), reduced = False):
+def microwave_coupling_matrix(QN, ground_states, excited_states, pol_vec = np.array([0,0,1]), 
+                                reduced = False, nprocs = 1):
     """generate microwave coupling matrix between J1 and J2 rotational states,
 
 
@@ -47,50 +57,33 @@ def microwave_coupling_matrix(QN, ground_states, excited_states, pol_vec = np.ar
         J1 (int): one of the coupled rotational states
         J2 (int): one of the coupled rotational states
         pol_vec (np.ndarray, optional): polarization vector. Defaults to np.array([0,0,1]).
+        nprocs (int): # processes to use for multiprocessing
 
     Returns:
         np.ndarray: microwave coupling matrix
     """
-    # # number of states in system
-    # N_states = len(QN) 
-    # # initialize Hamiltonian
-    # H_mu = np.zeros((N_states,N_states), dtype = complex)
+    if nprocs > 1:
+        with multiprocessing.Pool(nprocs) as pool:
+            result = pool.starmap(multi_coupling_matrix,
+                [(QN, gs, excited_states, pol_vec, reduced) for gs in ground_states])
+        H = np.sum(result, axis = 0)
     
-    
-    # # loop over states and calculate microwave matrix elements between them
-    # for i in range(0, N_states):
-    #     state1 = QN[i].remove_small_components(tol = 0.001)
-        
-    #     for j in range(i, N_states):
-    #         state2 = QN[j].remove_small_components(tol = 0.001)
-            
-    #         # check that the states have the correct values of J
-    #         if (state1.find_largest_component().J == J1 and state2.find_largest_component().J == J2) or (state1.find_largest_component().J == J2 and state2.find_largest_component().J == J1):
-    #             # calculate matrix element between the two states
-    #             H_mu[i,j] = (ED_ME_mixed_state(state1, state2, reduced=reduced, pol_vec=pol_vec))
-                
-    # # make H_mu hermitian
-    # H_mu = (H_mu + np.conj(H_mu.T)) - np.diag(np.diag(H_mu))
-    
-    
-    # # return the coupling matrix
-    # return H_mu
-    # initialize the coupling matrix
-    H = np.zeros((len(QN),len(QN)), dtype = complex)
+    else:
+        H = np.zeros((len(QN),len(QN)), dtype = complex)
 
-    # start looping over ground and excited states
-    for ground_state in ground_states:
-        i = QN.index(ground_state)
-        for excited_state in excited_states:
-            j = QN.index(excited_state)
+        # start looping over ground and excited states
+        for ground_state in ground_states:
+            i = QN.index(ground_state)
+            for excited_state in excited_states:
+                j = QN.index(excited_state)
 
-            # calculate matrix element and add it to the Hamiltonian
-            H[i,j] = ED_ME_mixed_state(
-                                        ground_state, 
-                                        excited_state, 
-                                        pol_vec = pol_vec, 
-                                        reduced = reduced
-                                        )
+                # calculate matrix element and add it to the Hamiltonian
+                H[i,j] = ED_ME_mixed_state(
+                                            ground_state, 
+                                            excited_state, 
+                                            pol_vec = pol_vec, 
+                                            reduced = reduced
+                                            )
 
     # make H hermitian
     H = H + H.conj().T

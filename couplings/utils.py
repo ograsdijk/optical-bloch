@@ -201,3 +201,18 @@ def generate_superoperator(A,B):
     M_L = kron(B.T, A, format = 'csr')
 
     return M_L
+
+def multi_coupling_matrix(QN, ground_state, excited_states, pol_vec, reduced):
+    H = np.zeros((len(QN),len(QN)), dtype = complex)
+    i = QN.index(ground_state)
+    for excited_state in excited_states:
+        j = QN.index(excited_state)
+
+        # calculate matrix element and add it to the Hamiltonian
+        H[i,j] = ED_ME_mixed_state(
+                                    ground_state, 
+                                    excited_state, 
+                                    pol_vec = pol_vec, 
+                                    reduced = reduced
+                                    )
+    return H

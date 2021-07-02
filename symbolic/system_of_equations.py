@@ -26,7 +26,7 @@ def generate_system_of_equations(hamiltonian, C_array, progress = False, nprocs 
     else:
         if nprocs > 1:
             with multiprocessing.Pool(processes = nprocs) as pool:
-                results = pool.starmap(f, [(C,Cᶜ,ρ) for C,Cᶜ in zip(C_array, C_conj_array)])
+                results = pool.starmap(multi_C_ρ_Cconj, [(C,Cᶜ,ρ) for C,Cᶜ in zip(C_array, C_conj_array)])
                 matrix_mult_sum += np.sum(results)
         else:
             for idx in tqdm(range(C_array.shape[0]), disable = not progress):
