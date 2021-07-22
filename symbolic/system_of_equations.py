@@ -7,7 +7,9 @@ from symbolic.utils import multi_C_ρ_Cconj
 from symbolic.density_matrix import generate_density_matrix_symbolic
 
 
-def generate_system_of_equations(hamiltonian, C_array, progress = False, nprocs = 1, fast = False):
+def generate_system_of_equations(hamiltonian, C_array, progress = False, 
+                                    nprocs = 1, fast = False,
+                                    split_output = False):
     n_states = hamiltonian.shape[0]
     ρ = generate_density_matrix_symbolic(n_states)
     C_conj_array = np.einsum('ijk->ikj', C_array.conj())
@@ -26,7 +28,8 @@ def generate_system_of_equations(hamiltonian, C_array, progress = False, nprocs 
     else:
         if nprocs > 1:
             with multiprocessing.Pool(processes = nprocs) as pool:
-                results = pool.starmap(multi_C_ρ_Cconj, [(C,Cᶜ,ρ) for C,Cᶜ in zip(C_array, C_conj_array)])
+                results = pool.starmap(multi_C_ρ_Cconj, [(C,Cᶜ,ρ) for C,Cᶜ in
+                                                    zip(C_array, C_conj_array)])
                 matrix_mult_sum += np.sum(results)
         else:
             for idx in tqdm(range(C_array.shape[0]), disable = not progress):
@@ -36,9 +39,10 @@ def generate_system_of_equations(hamiltonian, C_array, progress = False, nprocs 
 
     a = -0.5 * (Cprecalc@ρ + ρ@Cprecalc)
     b = -1j*(hamiltonian@ρ - ρ@hamiltonian)
-
-    system = zeros(n_states, n_states)
-    system += matrix_mult_sum
-    system += a
-    system += b
-    return system
+ 
+    if split_output:
+        return b, matrix_mult_sum + a
+    else:
+        system = zeros(n_states, n_states)
+        system += matrix_mult_sum + a +b
+        return system

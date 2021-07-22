@@ -216,3 +216,18 @@ def multi_coupling_matrix(QN, ground_state, excited_states, pol_vec, reduced):
                                     reduced = reduced
                                     )
     return H
+
+def check_approx_state_exact_state(approx, exact):
+    approx = approx.find_largest_component()
+    exact = exact.find_largest_component()
+
+    assert approx.electronic_state == exact.electronic_state, \
+        f"mismatch in electronic state {approx.electronic_state} != {exact.electronic_state}"
+    assert approx.J == exact.J, \
+        f"mismatch in J {approx.J} != {exact.J}"
+    assert approx.F == exact.F, \
+        f"mismatch in F {approx.F} != {exact.F}"
+    assert approx.F1 == exact.F1, \
+        f"mismatch in F1 {approx.F1} != {exact.F1}"
+    assert approx.mF == exact.mF, \
+        f"mismatch in mF {approx.mF} != {exact.mF}"
