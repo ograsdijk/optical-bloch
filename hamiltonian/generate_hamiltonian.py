@@ -145,7 +145,7 @@ def generate_reduced_X_hamiltonian(ground_states_approx, Jmin = 0, Jmax = 4,
                                             parity = parity, Ω = 0, I_Tl = 1/2, 
                                             I_F = 1/2)
     H_X = S_transform.conj().T @ H_X_uc(E,B) @ S_transform
-    
+
     # diagonalize the Hamiltonian
     H_X_diag, V, V_ref_X = generate_diagonalized_hamiltonian(H_X, 
                                                             keep_order = True, 
@@ -204,6 +204,8 @@ def generate_reduced_B_hamiltonian(excited_states_approx, Jmin = 1, Jmax = 3,
     return excited_states, H_B_red
 
 def generate_total_hamiltonian(H_X_red, H_B_red, element_limit = 0.1):
+    H_X_red = H_X_red.copy()
+    H_B_red = H_B_red.copy()
     H_X_red[np.abs(H_X_red) < element_limit] = 0
     H_B_red[np.abs(H_B_red) < element_limit] = 0
 

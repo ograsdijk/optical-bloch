@@ -2,7 +2,6 @@ import multiprocessing
 import numpy as np
 from tqdm import tqdm
 from sympy import zeros
-from multiprocessing import Pool
 from symbolic.utils import multi_C_ρ_Cconj
 from symbolic.density_matrix import generate_density_matrix_symbolic
 
